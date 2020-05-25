@@ -174,8 +174,8 @@ public class Playground {
                 "URL: " + url + '\n' +
                 "Playground Status: " + playgroundStatus + '\n' +
                 "Description: " + description + '\n' +
-                "Owner: " + owner + '\n' +
+                "Owner: \n" + owner + '\n' +
                 "Cancellation Period: " + cancellationPeriod + '\n' +
-                "Available At Time: " + availableAtTime;
+                "Available At Time: \n" + availableAtTime;
     }
 }
