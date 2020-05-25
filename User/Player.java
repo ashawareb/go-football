@@ -43,10 +43,7 @@ public class Player extends Account {
      */
     public void viewPlaygrounds(ArrayList<Playground> playgrounds) {
         for (int i = 0; i < playgrounds.size(); i++) {
-            int j = i + 1;
-            if (playgrounds.get(i).getAvailability() && playgrounds.get(i).getPlaygroundStatus().equals("activated")) {
-                System.out.println('[' + j + "] " + playgrounds.get(i));
-            }
+            System.out.println('[' + String.valueOf(i + 1) + "] " + playgrounds.get(i));
         }
     }
 
@@ -65,7 +62,7 @@ public class Player extends Account {
         if (criterion.equals("timeslot")) {
             filteredPlaygrounds = filterByTimeSlot(playground, time);
         } else {
-            System.out.println("enter address");
+            System.out.println("Enter address: ");
             String address = input.nextLine();
             filteredPlaygrounds = filterByLocationAndDate(playground, address, time);
         }
@@ -74,17 +71,44 @@ public class Player extends Account {
     }
 
     /**
+     * @param playgrounds
+     * @param time
+     */
+    public ArrayList<Playground> filterByTimeSlot(ArrayList<Playground> playgrounds, Time time) {
+        ArrayList<Playground> filteredPlaygrounds = new ArrayList<>();
+        for (int i = 0; i < playgrounds.size(); i++) {
+            Time playgroundTime = playgrounds.get(i).getAvailableAtTime();
+            if (!(time.startsBefore(playgroundTime) || time.endsAfter(playgroundTime))) {
+                filteredPlaygrounds.add(playgrounds.get(i));
+            }
+        }
+        return filteredPlaygrounds;
+    }
+
+    public ArrayList<Playground> filterByLocationAndDate(ArrayList<Playground> playgrounds, String addressLocation, Time time) {
+        ArrayList<Playground> filteredPlaygrounds = new ArrayList<>();
+        for (int i = 0; i < playgrounds.size(); i++) {
+            Time playgroundTime = playgrounds.get(i).getAvailableAtTime();
+            if (!(time.startsBefore(playgroundTime) || time.endsAfter(playgroundTime)) && playgrounds.get(i).getAddress().equalsIgnoreCase(addressLocation)) {
+                filteredPlaygrounds.add(playgrounds.get(i));
+            }
+        }
+        return filteredPlaygrounds;
+    }
+
+    /**
      * @param bookedPlayground
      */
     public void bookPlayground(Player player, Playground bookedPlayground) throws InsufficientBalance, PlaygroundUnavailable {
-        if (bookedPlayground.getPlaygroundStatus().equals("activated") && bookedPlayground.getAvailability()) {
+        if (bookedPlayground.getPlaygroundStatus().equals("Activated") && bookedPlayground.getAvailability()) {
             Time bookingTime = new Time();
             Booking newBooking = new Booking(getVerifier());
             boolean flag = true;
             System.out.println("Please enter your desired time slot: ");
             boolean validTime = bookingTime.setTime();
             if (validTime) {
-                if (bookedPlayground.getAvailableAtTime().conflicts(bookingTime)) {
+                Time playgroundTime = bookedPlayground.getAvailableAtTime();
+                if (!(bookingTime.startsBefore(playgroundTime) || bookingTime.endsAfter(playgroundTime))) {
                     newBooking.setTime(bookingTime);
                     newBooking.setPlayer(player);
                     newBooking.setPlayground(bookedPlayground);
@@ -132,12 +156,23 @@ public class Player extends Account {
             System.out.println("Enter name of player number: " + i);
             playerName = input.nextLine();
             System.out.println("Enter email of player number: " + i);
-            playerEmail = input.nextLine();
+            playerEmail = input.nextLine().toLowerCase();
 
-            verifier.verifyEmail(playerEmail);
+            boolean duplicateEmail = false;
+            for (int j = 0; j < tempTeam.getMembers().size(); j++) {
+                if (tempTeam.getMembers().get(j).getEmail().equals(playerEmail)) {
+                    duplicateEmail = true;
+                    break;
+                }
+            }
 
-            Team.TeamMember tempTeamMember = tempTeam.new TeamMember(playerName, playerEmail);
-            tempTeam.getMembers().add(tempTeamMember);
+            if (verifier.verifyEmail(playerEmail) && !duplicateEmail) {
+                Team.TeamMember tempTeamMember = tempTeam.new TeamMember(playerName, playerEmail);
+                tempTeam.getMembers().add(tempTeamMember);
+            } else {
+                System.out.println("Invalid player email, please try again.");
+                i--;
+            }
         }
 
         boolean favouriteTeamNotSet = true;
@@ -168,30 +203,39 @@ public class Player extends Account {
         boolean invitationWasSuccessful = false;
 
         Scanner input = new Scanner(System.in);
-        int userChoice = 0;
-        while (userChoice != 1 && userChoice != 2) {
-            System.out.println("[1] Send invitation to all team member");
-            System.out.println("[2] Send invitation to specific members");
-            userChoice = Integer.parseInt(input.nextLine());
-        }
+        System.out.println("[0] Cancel");
+        System.out.println("[1] Send invitation to all team member");
+        System.out.println("[2] Send invitation to a specific member");
+        int userChoice = getVerifier().getUserChoice(0, 2);
         if (userChoice == 1) {
             int teamMemberSize = teams.get(favouriteTeamIndex).getMembers().size();
             for (int i = 0; i < teamMemberSize; i++) {
                 invitationWasSuccessful = sendEmailInvitation(teams.get(favouriteTeamIndex).getMembers().get(i).getEmail());
             }
-        } else {
+        } else if (userChoice == 2) {
             System.out.println("Enter number of players you want to invite");
-            int numberOfPlayersToInvite = Integer.parseInt(input.nextLine());
+            int numberOfPlayersToInvite = 0;
+            while (true) {
+                try {
+                    numberOfPlayersToInvite = Integer.parseInt(input.nextLine());
+                    if (numberOfPlayersToInvite > 0) break;
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter a valid digit");
+                }
+            }
             String tempEmail;
             for (int i = 0; i < numberOfPlayersToInvite; i++) {
                 System.out.println("Enter email of player number " + i + " to invite");
                 tempEmail = input.nextLine();
-                verifier.verifyEmail(tempEmail);
-                invitationWasSuccessful = sendEmailInvitation(tempEmail);
+                if (verifier.verifyEmail(tempEmail)) {
+                    invitationWasSuccessful = sendEmailInvitation(tempEmail);
+                } else {
+                    System.out.println("Invalid email address, please try again");
+                    i--;
+                }
             }
         }
-
-        if (invitationWasSuccessful) System.out.println("invitation sent successfully");
+        if (invitationWasSuccessful) System.out.println("Invitation sent successfully");
 
     }
 
@@ -247,8 +291,7 @@ public class Player extends Account {
             System.out.println("Team Members: ");
             System.out.println("[0] Cancel");
             for (int i = 0; i < modifyTeam.getMembers().size(); i++) {
-                int j = i + 1;
-                System.out.println('[' + j + "] " + modifyTeam.getMembers().get(i));
+                System.out.println('[' + String.valueOf(i + 1) + "] " + modifyTeam.getMembers().get(i));
             }
             userChoice = getVerifier().getUserChoice(0, modifyTeam.getMembers().size());
             if (userChoice != 0) {
@@ -269,8 +312,15 @@ public class Player extends Account {
                 } else if (userChoice == 2) {
                     Scanner input = new Scanner(System.in);
                     System.out.println("Current member email: " + modifyTeam.getMembers().get(userChoice - 1).getEmail());
-                    String newEmail = input.nextLine();
-                    if (!getVerifier().verifyEmail(newEmail)) throw new InvalidEmail();
+                    String newEmail = input.nextLine().toLowerCase();
+                    boolean duplicateEmail = false;
+                    for (int i = 0; i < modifyTeam.getMembers().size(); i++) {
+                        if (modifyTeam.getMembers().get(i).getEmail().equals(newEmail)) {
+                            duplicateEmail = true;
+                            break;
+                        }
+                    }
+                    if ((!getVerifier().verifyEmail(newEmail)) || duplicateEmail) throw new InvalidEmail();
                     else modifyTeam.getMembers().get(userChoice - 1).setEmail(newEmail);
                     System.out.println("===========================");
                     System.out.println("New member email: " + modifyTeam.getMembers().get(userChoice - 1).getEmail());
@@ -286,39 +336,16 @@ public class Player extends Account {
                     }
                 }
                 modifyTeam.setFavouriteTeam(true);
+                favouriteTeamIndex = teams.indexOf(modifyTeam);
                 System.out.println("Favourite team changed successfully");
             }
         }
     }
 
-    /**
-     * @param playgrounds
-     * @param time
-     */
-    public ArrayList<Playground> filterByTimeSlot(ArrayList<Playground> playgrounds, Time time) {
-        ArrayList<Playground> filteredPlaygrounds = new ArrayList<>();
-        for (int i = 0; i < playgrounds.size(); i++) {
-            if (playgrounds.get(i).getAvailableAtTime().conflicts(time)) {
-                filteredPlaygrounds.add(playgrounds.get(i));
-            }
-        }
-        return filteredPlaygrounds;
-    }
-
-    public ArrayList<Playground> filterByLocationAndDate(ArrayList<Playground> playgrounds, String addressLocation, Time time) {
-        ArrayList<Playground> filteredPlaygrounds = new ArrayList<>();
-        for (int i = 0; i < playgrounds.size(); i++) {
-            if (playgrounds.get(i).getAvailableAtTime().conflicts(time) && playgrounds.get(i).getAddress().equalsIgnoreCase(addressLocation)) {
-                filteredPlaygrounds.add(playgrounds.get(i));
-            }
-        }
-        return filteredPlaygrounds;
-    }
-
     @Override
     public String toString() {
         return "Player user name:" + getUserName() + '\n' +
-                "Player team:" + teams + '\n' +
+                "Player favourite team:\n" + teams.get(favouriteTeamIndex) + '\n' +
                 "Player email:" + getEmail() + '\n' +
                 "Player phone number:" + getPhoneNumber();
     }
