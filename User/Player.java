@@ -140,7 +140,6 @@ public class Player extends Account {
             tempTeam.getMembers().add(tempTeamMember);
         }
 
-
         boolean favouriteTeamNotSet = true;
         for (Team playerTeam : teams) {
             if (playerTeam.isFavouriteTeam()) {
