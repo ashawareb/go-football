@@ -24,14 +24,16 @@ public class Application implements Verifier {
 
     public int getUserChoice(int min, int max) {
         Scanner input = new Scanner(System.in);
-        int userChoice = 0;
-        while (userChoice == 0) {
+        int userChoice = min - 1;
+        boolean flag = true;
+        while (flag) {
             try {
                 userChoice = Integer.parseInt(input.nextLine());
                 while (userChoice < min || userChoice > max) {
                     userChoice = Integer.parseInt(input.nextLine());
                     System.out.println("Please enter a valid number:");
                 }
+                flag = false;
             } catch (NumberFormatException ex) {
                 System.out.println("Please enter a valid digit");
             }
@@ -62,7 +64,7 @@ public class Application implements Verifier {
                 System.out.println("[0] Cancel");
                 for (Playground playground : unapprovedPlaygrounds) {
                     System.out.println("[" + counter + "]");
-                    System.out.println(playground);
+                    System.out.println(playground.getPlaygroundName());
                     counter++;
                 }
                 int approvedPlaygroundIndex = getUserChoice(0, unapprovedPlaygrounds.size());
@@ -76,8 +78,7 @@ public class Application implements Verifier {
                 System.out.println("===========================");
                 System.out.println("[0] Cancel");
                 for (int i = 0; i < allPlaygrounds.size(); i++) {
-                    int j = i + 1;
-                    System.out.println('[' + j + "] " + allPlaygrounds.get(i));
+                    System.out.println('[' + String.valueOf(i + 1) + "] " + allPlaygrounds.get(i));
                 }
                 System.out.println("Choose a playground to suspend: ");
                 userChoice = getUserChoice(0, allPlaygrounds.size());
@@ -89,8 +90,7 @@ public class Application implements Verifier {
                 System.out.println("===========================");
                 System.out.println("[0] Cancel");
                 for (int i = 0; i < allPlaygrounds.size(); i++) {
-                    int j = i + 1;
-                    System.out.println('[' + j + "] " + allPlaygrounds.get(i));
+                    System.out.println('[' + String.valueOf(i + 1) + "] " + allPlaygrounds.get(i).getPlaygroundName());
                 }
                 System.out.println("Choose a playground to delete: ");
                 userChoice = getUserChoice(0, allPlaygrounds.size());
@@ -102,8 +102,7 @@ public class Application implements Verifier {
                 System.out.println("===========================");
                 System.out.println("[0] Cancel");
                 for (int i = 0; i < allPlaygrounds.size(); i++) {
-                    int j = i + 1;
-                    System.out.println('[' + j + "] " + allPlaygrounds.get(i));
+                    System.out.println('[' + String.valueOf(i + 1) + "] " + allPlaygrounds.get(i).getPlaygroundName());
                 }
                 System.out.println("Choose a playground to activate: ");
                 userChoice = getUserChoice(0, allPlaygrounds.size());
@@ -166,8 +165,7 @@ public class Application implements Verifier {
                 System.out.println("===========================");
                 System.out.println("[0] Cancel");
                 for (int i = 0; i < player.getPlayerBookings().size(); i++) {
-                    int j = i + 1;
-                    System.out.println('[' + j + "] " + player.getPlayerBookings().get(i));
+                    System.out.println('[' + String.valueOf(i + 1) + "] " + player.getPlayerBookings().get(i));
                 }
                 System.out.println("===========================");
                 System.out.println("Please choose a number:");
@@ -177,7 +175,7 @@ public class Application implements Verifier {
                 }
             } else if (userChoice == 6) {
                 try {
-                    player.updateProfile();
+                    player.updateProfile(accounts);
                 } catch (InvalidPassword ex) {
                     System.out.println("Invalid password, please try again.");
                 } catch (InvalidEmail ex) {
@@ -191,8 +189,7 @@ public class Application implements Verifier {
                 System.out.println("===========================");
                 System.out.println("[0] Cancel");
                 for (int i = 0; i < player.getTeams().size(); i++) {
-                    int j = i + 1;
-                    System.out.println('[' + j + "] " + player.getTeams().get(i));
+                    System.out.println('[' + String.valueOf(i + 1) + "] " + player.getTeams().get(i).getTeamName());
                 }
                 System.out.println("===========================");
                 System.out.println("Please choose a number:");
@@ -236,17 +233,16 @@ public class Application implements Verifier {
                 System.out.println("===========================");
                 System.out.println("[0] Cancel");
                 for (int i = 0; i < playgroundsCount; i++) {
-                    int j = i + 1;
-                    System.out.println('[' + j + "] " + playgroundOwner.getPlaygrounds().get(i));
+                    System.out.println('[' + String.valueOf(i + 1) + "] " + playgroundOwner.getPlaygrounds().get(i).getPlaygroundName());
                 }
                 System.out.println("===========================");
                 System.out.println("Please choose a playground to modify or enter 0 to return to main menu: ");
-                int chosenPlayground = getUserChoice(0, playgroundOwner.getPlaygrounds().size());
-                if (userChoice != 0) {
-                    playgroundOwner.updatePlayground(playgroundOwner.getPlaygrounds().get(chosenPlayground));
+                int chosenPlayground = getUserChoice(0, playgroundsCount);
+                if (chosenPlayground != 0) {
+                    playgroundOwner.updatePlayground(allPlaygrounds, playgroundOwner.getPlaygrounds().get(chosenPlayground - 1));
                 }
             } else if (userChoice == 2) {
-                playgroundOwner.addPlayground(unapprovedPlaygrounds);
+                playgroundOwner.addPlayground(allPlaygrounds, unapprovedPlaygrounds);
             } else if (userChoice == 3) {
                 playgroundOwner.viewPending();
             } else if (userChoice == 4) {
@@ -254,21 +250,19 @@ public class Application implements Verifier {
                 System.out.println("===========================");
                 System.out.println("[0] Cancel");
                 for (int i = 0; i < playgroundsCount; i++) {
-                    int j = i + 1;
-                    System.out.println('[' + j + "] " + playgroundOwner.getPlaygrounds().get(i));
+                    System.out.println('[' + String.valueOf(i + 1) + "] " + playgroundOwner.getPlaygrounds().get(i).getPlaygroundName());
                 }
                 System.out.println("===========================");
                 System.out.println("Please choose a playground to view its bookings or enter 0 to return to main menu: ");
-                int chosenPlayground = getUserChoice(0, playgroundOwner.getPlaygrounds().size());
-                if (userChoice != 0) {
-                    playgroundOwner.updatePlayground(playgroundOwner.getPlaygrounds().get(chosenPlayground));
+                int chosenPlayground = getUserChoice(0, playgroundsCount);
+                if (chosenPlayground != 0) {
+                    playgroundOwner.viewBookings(playgroundOwner.getPlaygrounds().get(chosenPlayground));
                 }
-                playgroundOwner.viewBookings(playgroundOwner.getPlaygrounds().get(chosenPlayground));
             } else if (userChoice == 5) {
                 playgroundOwner.checkEwallet();
             } else if (userChoice == 6) {
                 try {
-                    playgroundOwner.updateProfile();
+                    playgroundOwner.updateProfile(accounts);
                 } catch (InvalidPassword ex) {
                     System.out.println("Invalid password, please try again.");
                 } catch (InvalidEmail ex) {
@@ -288,9 +282,8 @@ public class Application implements Verifier {
         System.out.println("===========================");
         System.out.println("Playground Owners: ");
         for (int i = 0; i < accounts.size(); i++) {
-            int j = i + 1;
             if (accounts.get(i) instanceof PlaygroundOwner) {
-                System.out.println('[' + j + "] " + accounts.get(i));
+                System.out.println('[' + String.valueOf(i + 1) + "] " + accounts.get(i));
             }
         }
     }
@@ -299,9 +292,8 @@ public class Application implements Verifier {
         System.out.println("===========================");
         System.out.println("Players: ");
         for (int i = 0; i < accounts.size(); i++) {
-            int j = i + 1;
             if (accounts.get(i) instanceof Player) {
-                System.out.println('[' + j + "] " + accounts.get(i));
+                System.out.println('[' + String.valueOf(i + 1) + "] " + accounts.get(i));
             }
         }
     }
@@ -360,9 +352,6 @@ public class Application implements Verifier {
      */
     @Override
     public boolean verifyEmail(String email) {
-        for (int i = 0; i < accounts.size(); i++) {
-            if (accounts.get(i).getEmail().equals(email)) return false;
-        }
         if (email.contains(" ")) return false;
         int countAt = 0, countDot = 0;
         for (int i = 0; i < email.length(); i++) {
@@ -495,8 +484,15 @@ public class Application implements Verifier {
                 password = input.nextLine();
                 if (password.length() < 6) throw new InvalidPassword();
                 System.out.println("Please enter an email: ");
-                email = input.nextLine();
-                if (!verifyEmail(email)) throw new InvalidEmail();
+                email = input.nextLine().toLowerCase();
+                boolean duplicateEmail = false;
+                for (int i = 0; i < accounts.size(); i++) {
+                    if (accounts.get(i).getEmail().equals(email)) {
+                        duplicateEmail = true;
+                        break;
+                    }
+                }
+                if ((!verifyEmail(email)) || duplicateEmail) throw new InvalidEmail();
                 System.out.println("Please enter a phone number: ");
                 phoneNumber = input.nextLine();
                 if (!verifyNumber(phoneNumber)) throw new InvalidNumber();
