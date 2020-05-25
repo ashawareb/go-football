@@ -114,13 +114,14 @@ public abstract class Account {
             String newEmail = input.nextLine().toLowerCase();
             boolean duplicateEmail = false;
             for (int i = 0; i < accounts.size(); i++) {
-                if (accounts.get(i).getEmail().equals(email)) {
+                if (accounts.get(i).getEmail().equals(newEmail)) {
                     duplicateEmail = true;
                     break;
                 }
             }
             if ((!verifier.verifyEmail(newEmail)) || duplicateEmail) throw new InvalidEmail();
             else setEmail(newEmail);
+            System.out.println("New email address: " + getEmail());
         } else if (userChoice == 2) {
             System.out.println("Current password: " + getPassword());
             System.out.println("Please enter a new password: ");
@@ -133,9 +134,10 @@ public abstract class Account {
             String newNumber = input.nextLine();
             if (!verifier.verifyNumber(newNumber)) throw new InvalidNumber();
             else setPhoneNumber(newNumber);
+            System.out.println("New phone number: " + getPhoneNumber());
         } else if (userChoice == 4) {
             System.out.println("Current address: " + ((PlaygroundOwner) this).getAddress());
-            System.out.println("Please enter an email: ");
+            System.out.println("Please enter a new address: ");
             String newAddress = input.nextLine();
             if (newAddress.length() < 1) throw new InvalidAddress();
             else ((PlaygroundOwner) this).setAddress(newAddress);
