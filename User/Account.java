@@ -4,6 +4,7 @@ import Exceptions.*;
 import System.Application;
 import System.Verifier;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public abstract class Account {
@@ -91,7 +92,7 @@ public abstract class Account {
         this.phoneNumber = phoneNumber;
     }
 
-    public void updateProfile() throws InvalidEmail, InvalidPassword, InvalidNumber, InvalidAddress {
+    public void updateProfile(ArrayList<Account> accounts) throws InvalidEmail, InvalidPassword, InvalidNumber, InvalidAddress {
         Scanner input = new Scanner(System.in);
         boolean isOwner = (this instanceof PlaygroundOwner);
         int maxLimit = (isOwner) ? 4 : 3;
@@ -102,14 +103,23 @@ public abstract class Account {
         System.out.println("[1] Email");
         System.out.println("[2] Password");
         System.out.println("[3] Phone Number");
-        if (isOwner)
+        if (isOwner) {
             System.out.println("[4] Address");
+        }
+        System.out.println("Please enter a number: ");
         int userChoice = getVerifier().getUserChoice(0, maxLimit);
         if (userChoice == 1) {
             System.out.println("Current email address: " + getEmail());
             System.out.println("Please enter an email: ");
-            String newEmail = input.nextLine();
-            if (!verifier.verifyEmail(newEmail)) throw new InvalidEmail();
+            String newEmail = input.nextLine().toLowerCase();
+            boolean duplicateEmail = false;
+            for (int i = 0; i < accounts.size(); i++) {
+                if (accounts.get(i).getEmail().equals(email)) {
+                    duplicateEmail = true;
+                    break;
+                }
+            }
+            if ((!verifier.verifyEmail(newEmail)) || duplicateEmail) throw new InvalidEmail();
             else setEmail(newEmail);
         } else if (userChoice == 2) {
             System.out.println("Current password: " + getPassword());
