@@ -30,8 +30,8 @@ public class Application implements Verifier {
             try {
                 userChoice = Integer.parseInt(input.nextLine());
                 while (userChoice < min || userChoice > max) {
-                    userChoice = Integer.parseInt(input.nextLine());
                     System.out.println("Please enter a valid number:");
+                    userChoice = Integer.parseInt(input.nextLine());
                 }
                 flag = false;
             } catch (NumberFormatException ex) {
@@ -63,15 +63,14 @@ public class Application implements Verifier {
                 System.out.println("Displaying all unapproved playgrounds:");
                 System.out.println("[0] Cancel");
                 for (Playground playground : unapprovedPlaygrounds) {
-                    System.out.println("[" + counter + "]");
-                    System.out.println(playground.getPlaygroundName());
+                    System.out.println("[" + String.valueOf(counter) + "] " + playground.getPlaygroundName());
                     counter++;
                 }
                 int approvedPlaygroundIndex = getUserChoice(0, unapprovedPlaygrounds.size());
                 if (approvedPlaygroundIndex != 0) {
-                    admin.approvePlayground(unapprovedPlaygrounds.get(approvedPlaygroundIndex));
-                    allPlaygrounds.add(unapprovedPlaygrounds.get(approvedPlaygroundIndex));
-                    unapprovedPlaygrounds.remove(approvedPlaygroundIndex);
+                    admin.approvePlayground(unapprovedPlaygrounds.get(approvedPlaygroundIndex - 1));
+                    allPlaygrounds.add(unapprovedPlaygrounds.get(approvedPlaygroundIndex - 1));
+                    unapprovedPlaygrounds.remove(approvedPlaygroundIndex - 1);
                     System.out.println("Playground approved");
                 }
             } else if (userChoice == 2) {
@@ -95,7 +94,7 @@ public class Application implements Verifier {
                 System.out.println("Choose a playground to delete: ");
                 userChoice = getUserChoice(0, allPlaygrounds.size());
                 if (userChoice != 0) {
-                    admin.deletePlayground(allPlaygrounds, allPlaygrounds.get(userChoice - 1));
+                    admin.deletePlayground(allPlaygrounds, unapprovedPlaygrounds, allPlaygrounds.get(userChoice - 1));
                     System.out.println("Playground deleted and all bookings refunded");
                 }
             } else if (userChoice == 4) {
@@ -194,10 +193,12 @@ public class Application implements Verifier {
                 System.out.println("===========================");
                 System.out.println("Please choose a number:");
                 userChoice = getUserChoice(0, player.getTeams().size());
-                try {
-                    player.modifyTeam(player.getTeams().get(userChoice - 1));
-                } catch (InvalidEmail ex) {
-                    System.out.println("Invalid email entered");
+                if (userChoice != 0){
+                    try {
+                        player.modifyTeam(player.getTeams().get(userChoice - 1));
+                    } catch (InvalidEmail ex) {
+                        System.out.println("Invalid email entered");
+                    }
                 }
             } else if (userChoice == 8) {
                 player.filterPlaygrounds(allPlaygrounds, "timeslot");
@@ -239,7 +240,7 @@ public class Application implements Verifier {
                 System.out.println("Please choose a playground to modify or enter 0 to return to main menu: ");
                 int chosenPlayground = getUserChoice(0, playgroundsCount);
                 if (chosenPlayground != 0) {
-                    playgroundOwner.updatePlayground(allPlaygrounds, playgroundOwner.getPlaygrounds().get(chosenPlayground - 1));
+                    playgroundOwner.updatePlayground(allPlaygrounds, unapprovedPlaygrounds, playgroundOwner.getPlaygrounds().get(chosenPlayground - 1));
                 }
             } else if (userChoice == 2) {
                 playgroundOwner.addPlayground(allPlaygrounds, unapprovedPlaygrounds);
@@ -256,7 +257,7 @@ public class Application implements Verifier {
                 System.out.println("Please choose a playground to view its bookings or enter 0 to return to main menu: ");
                 int chosenPlayground = getUserChoice(0, playgroundsCount);
                 if (chosenPlayground != 0) {
-                    playgroundOwner.viewBookings(playgroundOwner.getPlaygrounds().get(chosenPlayground));
+                    playgroundOwner.viewBookings(playgroundOwner.getPlaygrounds().get(chosenPlayground - 1));
                 }
             } else if (userChoice == 5) {
                 playgroundOwner.checkEwallet();
@@ -394,7 +395,7 @@ public class Application implements Verifier {
             int phoneNumber = Integer.parseInt(number);
             if (phoneNumber < 0) return false;
             for (int i = 0; i < accounts.size(); i++) {
-                if (accounts.get(i).getPhoneNumber() == number) return false;
+                if (accounts.get(i).getPhoneNumber().equals(number)) return false;
             }
         } catch (NumberFormatException ex) {
             return false;
