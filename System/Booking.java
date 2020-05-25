@@ -50,6 +50,6 @@ public class Booking {
     @Override
     public String toString() {
         return "Booking duration:\n" + time + '\n' +
-                "Playground was booked by player: " + player;
+                "Playground was booked by player: " + player.getUserName();
     }
 }
