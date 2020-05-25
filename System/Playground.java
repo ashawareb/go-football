@@ -162,6 +162,7 @@ public class Playground {
         this.cancellationPeriod = cancelationPeriod;
     }
 
+
     @Override
     public String toString() {
         String availabilityString = (availability) ? "Approved" : "Unapproved";
@@ -175,7 +176,7 @@ public class Playground {
                 "Playground Status: " + playgroundStatus + '\n' +
                 "Description: " + description + '\n' +
                 "Owner: \n" + owner + '\n' +
-                "Cancellation Period: " + cancellationPeriod + '\n' +
+                "Cancellation Period: " + cancellationPeriod + " hours\n" +
                 "Available At Time: \n" + availableAtTime;
     }
 }
