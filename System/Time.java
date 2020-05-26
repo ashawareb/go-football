@@ -24,7 +24,7 @@ public class Time {
         endDay = 0;
         endMonth = 0;
         endYear = 0;
-    } 
+    }
 
     public int getStartingHour() {
         return startingHour;
@@ -134,20 +134,21 @@ public class Time {
             if (getEndingHour() < getStartingHour()) flag = false;
 
             if (getEndYear() < getStartYear()) flag = false;
-            else if (getEndMonth() < getStartMonth()) flag = false;
-            else if (getEndDay() < getStartDay()) flag = false;
+            else if (getEndMonth() < getStartMonth() && getEndYear() == getStartYear()) flag = false;
+            else if (getEndDay() < getStartDay() && getEndMonth() == getStartMonth()) flag = false;
 
             if (getStartingHour() < 0 || getStartingHour() > 24) flag = false;
             else if (getEndingHour() < 0 || getEndingHour() > 24) flag = false;
-            else if (getStartDay() < 0 || getStartDay() > 31) flag = false;
+            else if (getStartDay() < 0 || getStartDay() > 30) flag = false;
             else if (getStartMonth() < 0 || getStartMonth() > 12) flag = false;
             else if (getStartYear() < 0) flag = false;
-            else if (getEndDay() < 0 || getEndDay() > 31) flag = false;
+            else if (getEndDay() < 0 || getEndDay() > 30) flag = false;
             else if (getEndMonth() < 0 || getEndMonth() > 12) flag = false;
             else if (getEndYear() < 0) flag = false;
 
         } catch (NumberFormatException ex) {
             System.out.println("Invalid time input");
+            flag = false;
         }
         return flag;
     }
@@ -224,12 +225,42 @@ public class Time {
         return flag;
     }
 
+    public boolean startsBefore(Time time) {
+        boolean flag = false;
+        if (getStartYear() < time.getStartYear()) flag = true;
+        else if (getStartYear() == time.getStartYear()) {
+            if (getStartMonth() < time.getStartMonth()) flag = true;
+            else if (getStartMonth() == time.getStartMonth()) {
+                if (getStartDay() < time.getStartDay()) flag = true;
+            }
+        }
+        if (!flag) {
+            if (getStartingHour() < time.getStartingHour()) flag = true;
+        }
+        return flag;
+    }
+
+    public boolean endsAfter(Time time) {
+        boolean flag = false;
+        if (getEndYear() > time.getEndYear()) flag = true;
+        else if (getEndYear() == time.getEndYear()) {
+            if (getEndMonth() > time.getEndMonth()) flag = true;
+            else if (getEndMonth() == time.getEndMonth()) {
+                if (getEndDay() > time.getEndDay()) flag = true;
+            }
+        }
+        if (!flag) {
+            if (getEndingHour() > time.getEndingHour()) flag = true;
+        }
+        return flag;
+    }
+
     public int getDuration() {
-        int years = getEndYear() - getStartYear();
-        int months = getEndMonth() - getStartMonth();
+        int years = (getEndYear() - getStartYear()) * 12 * 30;
+        int months = (getEndMonth() - getStartMonth()) * 30;
         int days = getEndDay() - getStartDay();
         int hours = getEndingHour() - getStartingHour();
-        return (hours * ((years * 12 * 30) + (months * 30) + days));
+        return (hours * (years + months + days + 1));
     }
 
     @Override
