@@ -145,13 +145,30 @@ public class Player extends Account {
     }
 
     public void createTeam(Verifier verifier) {
-        System.out.println("Insert number of players in the team: ");
         Scanner input = new Scanner(System.in);
-        int numberOfPlayers = Integer.parseInt(input.nextLine());
+        Team tempTeam = new Team();
+        System.out.println("What would you like to call your team: ");
+        String teamName = input.nextLine();
+        while (teamName.length() < 1) {
+            System.out.println("Invalid team name, please try again");
+            teamName = input.nextLine();
+        }
+        tempTeam.setTeamName(teamName);
+        System.out.println("===========================");
+        System.out.println("Insert number of players in the team: ");
+        int numberOfPlayers = 0;
+        while (numberOfPlayers < 1) {
+            try {
+                numberOfPlayers = Integer.parseInt(input.nextLine());
+                if (numberOfPlayers < 1) throw new NumberFormatException();
+            } catch (NumberFormatException ex) {
+                System.out.println("Invalid number, please try again");
+            }
+        }
+
         String playerName;
         String playerEmail;
 
-        Team tempTeam = new Team();
         for (int i = 0; i < numberOfPlayers; i++) {
             System.out.println("Enter name of player number: " + i);
             playerName = input.nextLine();
@@ -195,55 +212,47 @@ public class Player extends Account {
         }
 
         teams.add(tempTeam);
-
+        System.out.println("Team created successfully");
         if (tempTeam.isFavouriteTeam()) favouriteTeamIndex = teams.indexOf(tempTeam);
     }
 
-    public void sendInvitation(Verifier verifier) {
+    public void sendInvitation() {
+        Team teamToInvite = pickTeam();
         boolean invitationWasSuccessful = false;
-
-        Scanner input = new Scanner(System.in);
-        System.out.println("[0] Cancel");
-        System.out.println("[1] Send invitation to all team member");
-        System.out.println("[2] Send invitation to a specific member");
-        int userChoice = getVerifier().getUserChoice(0, 2);
-        if (userChoice == 1) {
-            int teamMemberSize = teams.get(favouriteTeamIndex).getMembers().size();
-            for (int i = 0; i < teamMemberSize; i++) {
-                invitationWasSuccessful = sendEmailInvitation(teams.get(favouriteTeamIndex).getMembers().get(i).getEmail());
-            }
-        } else if (userChoice == 2) {
-            System.out.println("Enter number of players you want to invite");
-            int numberOfPlayersToInvite = 0;
-            while (true) {
-                try {
-                    numberOfPlayersToInvite = Integer.parseInt(input.nextLine());
-                    if (numberOfPlayersToInvite > 0) break;
-                } catch (NumberFormatException ex) {
-                    System.out.println("Please enter a valid digit");
+        if (teamToInvite != null) {
+            System.out.println("===========================");
+            System.out.print("Sending invitations to team: " + teamToInvite.getTeamName());
+            System.out.println("\n===========================");
+            System.out.println("[0] Cancel");
+            System.out.println("[1] Send invitation to all team members");
+            System.out.println("[2] Send invitation to a specific member");
+            int userChoice = getVerifier().getUserChoice(0, 2);
+            if (userChoice == 1) {
+                int teamMemberSize = teamToInvite.getMembers().size();
+                for (int i = 0; i < teamMemberSize; i++) {
+                    invitationWasSuccessful = sendEmailInvitation(teamToInvite.getMembers().get(i).getEmail());
                 }
-            }
-            String tempEmail;
-            for (int i = 0; i < numberOfPlayersToInvite; i++) {
-                System.out.println("Enter email of player number " + i + " to invite");
-                tempEmail = input.nextLine();
-                if (verifier.verifyEmail(tempEmail)) {
-                    invitationWasSuccessful = sendEmailInvitation(tempEmail);
+                System.out.println("Successfully invited all team members");
+            } else if (userChoice == 2) {
+                Team.TeamMember memberToInvite = pickTeamMember(teamToInvite);
+                if (memberToInvite != null) {
+                    sendEmailInvitation(memberToInvite.getEmail());
+                    System.out.println("Invitation sent successfully to " + memberToInvite.getEmail());
                 } else {
-                    System.out.println("Invalid email address, please try again");
-                    i--;
+                    System.out.println("Invitation not sent");
                 }
             }
+        } else {
+            System.out.println("No teams invited");
         }
-        if (invitationWasSuccessful) System.out.println("Invitation sent successfully");
-
     }
 
     public boolean sendEmailInvitation(String email) {
         boolean emailFound = false;
         for (int i = 0; i < teams.size(); i++) {
             for (int j = 0; j < teams.get(i).getMembers().size(); j++) {
-                if (teams.get(i).getMembers().get(j).getEmail() == email) emailFound = true;//then send invitation
+                if (teams.get(i).getMembers().get(j).getEmail().equalsIgnoreCase(email))
+                    emailFound = true;//then send invitation
             }
         }
         return emailFound;
@@ -287,14 +296,8 @@ public class Player extends Account {
             System.out.println("===========================");
             System.out.println("New team name: " + modifyTeam.getTeamName());
         } else if (userChoice == 2) {
-            System.out.println("===========================");
-            System.out.println("Team Members: ");
-            System.out.println("[0] Cancel");
-            for (int i = 0; i < modifyTeam.getMembers().size(); i++) {
-                System.out.println('[' + String.valueOf(i + 1) + "] " + modifyTeam.getMembers().get(i));
-            }
-            userChoice = getVerifier().getUserChoice(0, modifyTeam.getMembers().size());
-            if (userChoice != 0) {
+            Team.TeamMember member = pickTeamMember(modifyTeam);
+            if (member != null) {
                 System.out.println("===========================");
                 System.out.println("What would you like to edit: ");
                 System.out.println("[0] Cancel");
@@ -303,15 +306,15 @@ public class Player extends Account {
                 userChoice = getVerifier().getUserChoice(0, 2);
                 if (userChoice == 1) {
                     Scanner input = new Scanner(System.in);
-                    System.out.println("Current member name: " + modifyTeam.getMembers().get(userChoice - 1).getName());
+                    System.out.println("Current member name: " + member.getName());
                     String newName = input.nextLine();
                     if (newName.length() < 1) System.out.println("Invalid team name");
-                    else modifyTeam.getMembers().get(userChoice - 1).setName(newName);
+                    else member.setName(newName);
                     System.out.println("===========================");
-                    System.out.println("New member name: " + modifyTeam.getMembers().get(userChoice - 1).getName());
+                    System.out.println("New member name: " + member.getName());
                 } else if (userChoice == 2) {
                     Scanner input = new Scanner(System.in);
-                    System.out.println("Current member email: " + modifyTeam.getMembers().get(userChoice - 1).getEmail());
+                    System.out.println("Current member email: " + member.getEmail());
                     String newEmail = input.nextLine().toLowerCase();
                     boolean duplicateEmail = false;
                     for (int i = 0; i < modifyTeam.getMembers().size(); i++) {
@@ -321,9 +324,9 @@ public class Player extends Account {
                         }
                     }
                     if ((!getVerifier().verifyEmail(newEmail)) || duplicateEmail) throw new InvalidEmail();
-                    else modifyTeam.getMembers().get(userChoice - 1).setEmail(newEmail);
+                    else member.setEmail(newEmail);
                     System.out.println("===========================");
-                    System.out.println("New member email: " + modifyTeam.getMembers().get(userChoice - 1).getEmail());
+                    System.out.println("New member email: " + member.getEmail());
                 }
             }
         } else if (userChoice == 3) {
@@ -340,6 +343,34 @@ public class Player extends Account {
                 System.out.println("Favourite team changed successfully");
             }
         }
+    }
+
+    public Team pickTeam() {
+        System.out.println("===========================");
+        System.out.println("Your Teams");
+        System.out.println("===========================");
+        System.out.println("[0] Cancel");
+        for (int i = 0; i < getTeams().size(); i++) {
+            String isFavourite = (getTeams().get(i).isFavouriteTeam()) ? "[FAVOURITE] " : "";
+            System.out.println('[' + String.valueOf(i + 1) + "] " + isFavourite + getTeams().get(i).getTeamName());
+        }
+        System.out.println("===========================");
+        System.out.println("Please choose a number:");
+        int userChoice = getVerifier().getUserChoice(0, getTeams().size());
+        if (userChoice == 0) return null;
+        return getTeams().get(userChoice - 1);
+    }
+
+    public Team.TeamMember pickTeamMember(Team team) {
+        System.out.println("===========================");
+        System.out.println(team.getTeamName() + " team Members: ");
+        System.out.println("[0] Cancel");
+        for (int i = 0; i < team.getMembers().size(); i++) {
+            System.out.println('[' + String.valueOf(i + 1) + "] " + team.getMembers().get(i));
+        }
+        int userChoice = getVerifier().getUserChoice(0, team.getMembers().size());
+        if (userChoice == 0) return null;
+        return team.getMembers().get(userChoice - 1);
     }
 
     @Override
