@@ -24,7 +24,7 @@ public class Time {
         endDay = 0;
         endMonth = 0;
         endYear = 0;
-    }
+    } 
 
     public int getStartingHour() {
         return startingHour;
