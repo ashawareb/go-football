@@ -1,9 +1,6 @@
 package System;
 
-import User.Account;
-import User.Administrator;
-import User.Player;
-import User.PlaygroundOwner;
+import User.*;
 import Exceptions.*;
 
 import java.util.ArrayList;
@@ -135,8 +132,9 @@ public class Application implements Verifier {
             System.out.println("[7] Modify team");
             System.out.println("[8] Filter by time slot");
             System.out.println("[9] Filter by location and date");
-            System.out.println("[10] Log out");
-            int userChoice = getUserChoice(1, 10);
+            System.out.println("[10] Check Ewallet");
+            System.out.println("[11] Log out");
+            int userChoice = getUserChoice(1, 11);
             if (userChoice == 1) {
                 player.viewPlaygrounds(allPlaygrounds);
             } else if (userChoice == 2) {
@@ -148,8 +146,14 @@ public class Application implements Verifier {
                 userChoice = getUserChoice(0, allPlaygrounds.size());
                 if (userChoice != 0) {
                     try {
+                        int originalBookings = allPlaygrounds.get(userChoice - 1).getBookings().size();
                         player.bookPlayground(player, allPlaygrounds.get(userChoice - 1));
-                        System.out.println("Booking done");
+                        int afterBooking = allPlaygrounds.get(userChoice - 1).getBookings().size();
+                        if (afterBooking > originalBookings) {
+                            System.out.println("Booking done");
+                        } else {
+                            System.out.println("Booking aborted");
+                        }
                     } catch (InsufficientBalance ex) {
                         System.out.println("Your balance is insufficient for the booking.");
                     } catch (PlaygroundUnavailable ex) {
@@ -159,7 +163,7 @@ public class Application implements Verifier {
             } else if (userChoice == 3) {
                 player.createTeam(this);
             } else if (userChoice == 4) {
-                player.sendInvitation(this);
+                player.sendInvitation();
             } else if (userChoice == 5) {
                 System.out.println("===========================");
                 System.out.println("[0] Cancel");
@@ -185,17 +189,10 @@ public class Application implements Verifier {
                     System.out.println("Invalid address, please try again.");
                 }
             } else if (userChoice == 7) {
-                System.out.println("===========================");
-                System.out.println("[0] Cancel");
-                for (int i = 0; i < player.getTeams().size(); i++) {
-                    System.out.println('[' + String.valueOf(i + 1) + "] " + player.getTeams().get(i).getTeamName());
-                }
-                System.out.println("===========================");
-                System.out.println("Please choose a number:");
-                userChoice = getUserChoice(0, player.getTeams().size());
-                if (userChoice != 0){
+                Team modifyTeam = player.pickTeam();
+                if (modifyTeam != null) {
                     try {
-                        player.modifyTeam(player.getTeams().get(userChoice - 1));
+                        player.modifyTeam(modifyTeam);
                     } catch (InvalidEmail ex) {
                         System.out.println("Invalid email entered");
                     }
@@ -204,6 +201,10 @@ public class Application implements Verifier {
                 player.filterPlaygrounds(allPlaygrounds, "timeslot");
             } else if (userChoice == 9) {
                 player.filterPlaygrounds(allPlaygrounds, "location");
+            } else if (userChoice == 10) {
+                System.out.println("===========================");
+                System.out.println(player.getUserName() + "'s e-wallet balance: " + player.getPlayerWallet().getBalance() + " EGP");
+                System.out.println("===========================");
             } else {
                 flag = false;
             }
@@ -410,15 +411,6 @@ public class Application implements Verifier {
     public int sendConfirmation(String email) {
         int confirmationNumber = (int) (Math.random() * 9999) + 1000;
         return confirmationNumber;
-    }
-
-    /**
-     * @param playgrounds
-     * @param bookings
-     */
-    @Override
-    public boolean verifyBookings(ArrayList<Playground> playgrounds, Booking bookings) {
-        return false;
     }
 
     /**
