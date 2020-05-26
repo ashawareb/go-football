@@ -15,7 +15,7 @@ public class Administrator extends Account {
         setEmail("admin@gmail.com");
         setPhoneNumber("00000000000");
     }
-
+    
     /**
      * @param playground
      */
