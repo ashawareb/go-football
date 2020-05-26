@@ -21,7 +21,7 @@ public class Booking {
     public Playground getPlayground() {
         return this.playground;
     }
-
+ 
     /**
      * @param playground
      */
