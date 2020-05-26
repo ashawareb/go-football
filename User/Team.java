@@ -14,7 +14,7 @@ public class Team {
         favouriteTeam = false;
     }
 
-    protected class TeamMember {
+    public class TeamMember {
 
         private String name;
 
