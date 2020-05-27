@@ -6,12 +6,27 @@ import Exceptions.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Application class handels all necessary and fundamental operations needed in the program
+ */
 public class Application implements Verifier {
 
+    /**
+     *  accounts attribute holds all the accounts in the program, whether admin, player or playground owner
+     */
     private ArrayList<Account> accounts;
+    /**
+     * unapprovedPlaygrounds attribute holds all the unapproved Playgrounds that the admin needs to approve
+     */
     private ArrayList<Playground> unapprovedPlaygrounds;
+    /**
+     * allPlaygrounds attribute hold all the playgrounds that exist in the GoFo program
+     */
     private ArrayList<Playground> allPlaygrounds;
 
+    /**
+     * Application constructor initiates the value of accounts, unapprovedPlaygrounds and allPlaygrounds. As well as adding the administrator
+     */
     public Application() {
         accounts = new ArrayList<>();
         unapprovedPlaygrounds = new ArrayList<>();
@@ -19,6 +34,13 @@ public class Application implements Verifier {
         accounts.add(new Administrator(this));
     }
 
+    /**
+     * getUserChoice is responsibile for getting the user choice,
+     * and guarantees that the choice is between the min and max value that was passed by the menu
+     * @param min minimum value in the menu
+     * @param max maximam value in the menu
+     * @return userChoice which is between the min and max value
+     */
     public int getUserChoice(int min, int max) {
         Scanner input = new Scanner(System.in);
         int userChoice = min - 1;
@@ -39,7 +61,15 @@ public class Application implements Verifier {
     }
 
     /**
-     * @param admin
+     *  Administrator menu, displays all the admin menu options for the admin to choose from.
+     *  It contains the following options:
+     *  approving playground
+     *  suspending playground
+     *  detelting playground
+     *  activating playground
+     *  logging out.
+     *  Depending on which choice, the menu calls the corresponding function to the choice selected.
+     * @param admin takes the current admin that the program is currently interacting with.
      */
     private void menu(Administrator admin) {
         boolean flag = true;
@@ -113,7 +143,21 @@ public class Application implements Verifier {
     }
 
     /**
-     * @param player
+     * PLayer menu, displays all the player menu options for the player to choose from.
+     * It contains the following options:
+     * view playgrounds
+     * book a playground
+     * creating a team
+     * Send invitation
+     * cancel booking
+     * edit player info
+     * modify team
+     * filter by time slot
+     * filter by location and date
+     * check Ewallet
+     * log out
+     * Depending on the user choice, it calls the appropriate function that corresponds to the choice.
+     * @param player takes the current player that the program is currenty interating with.
      */
     private void menu(Player player) {
         boolean flag = true;
@@ -212,7 +256,17 @@ public class Application implements Verifier {
     }
 
     /**
-     * @param playgroundOwner
+     *  PLayground owner menu, displays all the PLayground menu options for the player owner to choose from.
+     *  It contains the following options:
+     *  view all playgrounds
+     *  add new playground
+     *  view pending playground requests
+     *  view bookings
+     *  view Ewallet
+     *  edit profile
+     *  log out
+     * Depending on the user choice, it calls the appropriate function that corresponds to the choice.
+     * @param playgroundOwner takes the current PLayground owner that the program is currenty interating with.
      */
     private void menu(PlaygroundOwner playgroundOwner) {
         boolean flag = true;
@@ -280,6 +334,10 @@ public class Application implements Verifier {
         }
     }
 
+    /**
+     * displays all playground owners by calling the function toString()
+     *
+     */
     private void displayPlaygroundOwners() {
         System.out.println("===========================");
         System.out.println("Playground Owners: ");
@@ -290,6 +348,9 @@ public class Application implements Verifier {
         }
     }
 
+    /**
+     * displays all players by calling the function toString()
+     */
     private void displayPlayers() {
         System.out.println("===========================");
         System.out.println("Players: ");
@@ -300,6 +361,17 @@ public class Application implements Verifier {
         }
     }
 
+    /**
+     * this holds the main menu for the GoFo application, it has two options,
+     * the login option
+     * and the register option
+     * if user chooces to login, the menu takes his username and password and checks if it exists, if it does not,
+     * the menu displays that it does not exist
+     * in case it exists, the main menu calls the menu of the user based on his role(player,admin or playground owner)
+     *
+     * if the user chooses to register, the main menu takes all his information and makes sure it does not conflict with
+     * other accounts, if it does, the main menu displays an error message based on the type of error that has happened.
+     */
     public void launch() {
         boolean flag = true;
         while (flag) {
@@ -350,7 +422,11 @@ public class Application implements Verifier {
     }
 
     /**
-     * @param email
+     * it overrides from the Verifier class
+     * verifyEmail takes an email as a parameter and returns true if and only if:
+     * the email is in correct format, meaning that the email is in the format of example@something.something
+     *
+     * @param email that email that the function needs to check criterion upon.
      */
     @Override
     public boolean verifyEmail(String email) {
@@ -377,8 +453,10 @@ public class Application implements Verifier {
     }
 
     /**
-     * @param account
-     * @param password
+     * it overrides from the Verifier class
+     * verifyPassword takes a password and an account as a parameter and returns true if and only if the password matches the password of the account
+     * @param account  that wants to login
+     * @param password the password that the account entered
      */
     @Override
     public boolean verifyPassword(Account account, String password) {
@@ -387,7 +465,10 @@ public class Application implements Verifier {
     }
 
     /**
-     * @param number
+     * it overrides from the Verifier class
+     * checks if the number exists, if it does, it returns false
+     * @throws NumberFormatException if the user entered unvalid input
+     * @param number number to be verified to be unique.
      */
     @Override
     public boolean verifyNumber(String number) {
@@ -405,7 +486,9 @@ public class Application implements Verifier {
     }
 
     /**
-     * @param email
+     * it overrides from the Verifier class
+     * sends a confirmation number to the email in parameter
+     * @param email email that needs to recieve the confirmation number
      */
     @Override
     public int sendConfirmation(String email) {
@@ -414,7 +497,10 @@ public class Application implements Verifier {
     }
 
     /**
-     * @param username
+     * it verifies username. returns index of username if found,
+     * if not found returns -2 if username length is below 1
+     * if not found but username is more than 1 then returns -1
+     * @param username username to be checked
      */
     public int verifyUserName(String username) {
         for (int i = 0; i < accounts.size(); i++) {
@@ -424,6 +510,13 @@ public class Application implements Verifier {
         return -1;
     }
 
+    /**
+     * login method, takes the username and password and throws exceptions if invalid
+     * if valid then it returns that it is valid
+     * @return usernameValid if the username is valid
+     * @throws InvalidUserName if username is not valid
+     * @throws InvalidPassword if password is not valid
+     */
     public int login() throws InvalidUserName, InvalidPassword {
         Scanner input = new Scanner(System.in);
         String username = null;
@@ -441,6 +534,17 @@ public class Application implements Verifier {
         throw new InvalidUserName();
     }
 
+    /**
+     * register method, resposible for taking user info such as username, password, email, phone number, confirmation number and address
+     * checks if the previous info is correct, if it is, it creates a new object based on the role,
+     * if not, throws the following exceptions
+     * @throws InvalidUserName if username is not valid
+     * @throws InvalidPassword if password is not valid
+     * @throws InvalidEmail if email is not valid
+     * @throws InvalidNumber if phone number is not valid
+     * @throws InvalidConfirmation if confirmation number is not valid
+     * @throws InvalidAddress if address is not valid
+     */
     public void register() throws InvalidUserName, InvalidPassword, InvalidEmail, InvalidNumber, InvalidConfirmation, InvalidAddress {
         Scanner input = new Scanner(System.in);
         boolean flag = true;
