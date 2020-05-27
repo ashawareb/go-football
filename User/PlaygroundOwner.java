@@ -9,12 +9,28 @@ import System.Verifier;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * PLaygroundOwner class, responsible for holding all the important attributes and operations of the playground owner
+ */
 public class PlaygroundOwner extends Account {
 
+    /**
+     * the playground owner address
+     */
     private String address;
+    /**
+     * the playground owner arraylist of playgrounds that he holds
+     */
     private ArrayList<Playground> playgrounds;
+    /**
+     * the playground owner wallet
+     */
     private Ewallet ownerWallet;
 
+    /**
+     * PLaygroundOwner constructor, responsible for initialising the address, playgrounds and wallet of the playground owner
+     * @param verifier to call the account constructor
+     */
     public PlaygroundOwner(Verifier verifier) {
         super(verifier);
         address = "";
@@ -22,25 +38,37 @@ public class PlaygroundOwner extends Account {
         ownerWallet = new Ewallet();
     }
 
+    /**
+     * @return getter for playground owner address
+     */
     public String getAddress() {
         return this.address;
     }
 
     /**
-     * @param address
+     * @param address setter for playground owner address
      */
     public void setAddress(String address) {
         this.address = address;
     }
 
+    /**
+     * @return getter for playground owner arrayList of playgrounds
+     */
     public ArrayList<Playground> getPlaygrounds() {
         return this.playgrounds;
     }
 
+    /**
+     * @return getter for playground owner wallet
+     */
     public Ewallet getOwnerWallet() {
         return this.ownerWallet;
     }
 
+    /**
+     * method responsible for viewing all the playgrounds that were not yet approved
+     */
     public void viewPending() {
         for (int i = 0; i < playgrounds.size(); i++) {
             System.out.println("===========================");
@@ -52,7 +80,20 @@ public class PlaygroundOwner extends Account {
     }
 
     /**
-     * @param unapprovedPlaygrounds
+     * adding a playground method
+     * the playground owner is required to enter the information of the playground such as the following:
+     * the playground name
+     * playground address
+     * playground gps location (logitude and latitude)
+     * price per hour
+     * url
+     * description
+     * cancellation period
+     * availableAtTime
+     * if the playground owner enters any invalid attributes, the method displays an error message explaining which attribute was entered incorrectly
+     * @param allPlaygrounds it takes all the playgrounds that are in the database to compare whether the new playground exists or not
+     * @param unapprovedPlaygrounds adds this new playground to the unApproved playgrounds until admin approval
+     *
      */
     public void addPlayground(ArrayList<Playground> allPlaygrounds, ArrayList<Playground> unapprovedPlaygrounds) {
         ArrayList<Playground> playgroundsCheck = allPlaygrounds;
@@ -185,6 +226,25 @@ public class PlaygroundOwner extends Account {
 
     }
 
+    /**
+     * updatePLayground responsible for updating a specific playground information
+     * a menu is first displayed for the playgroundOwner to choose from, which is one of the follwing:
+     * 1.updating availability
+     * 2. changin description
+     * 3. updating price
+     * 4. update booking number
+     * 5. updating url
+     * 6. deleting the playground
+     * 7. cancel
+     * the playground owner then chooses one of the previous choices, based on which choice was chosen, the method asks the playgroundOwner to
+     * alter the new attribute
+     * then checks whether it is valid and correct or not
+     * if not, an error message is displayed based on what went wrong
+     * if correct, the playground is successfully updated
+     * @param allPlaygrounds takes all the playgrounds to use it in comparing the updated playground and ensure zero duplication
+     * @param unapprovedPlaygrounds to add the updated playground
+     * @param playground playground that needs to be updated
+     */
     public void updatePlayground(ArrayList<Playground> allPlaygrounds, ArrayList<Playground> unapprovedPlaygrounds, Playground playground) {
         ArrayList<Playground> playgroundsCheck = allPlaygrounds;
         playgroundsCheck.addAll(unapprovedPlaygrounds);
@@ -298,6 +358,12 @@ public class PlaygroundOwner extends Account {
         }
     }
 
+    /**
+     * delets a specific playground
+     * @param allPlaygrounds removes the playground from the arraylist of all the playgrounds in the database
+     * @param unapprovedPlaygrounds removes the playground from the unApproved playground arraylist
+     * @param playground the playground to be removed and deleted from the GoFo database
+     */
     public void deletePlayground(ArrayList<Playground> allPlaygrounds, ArrayList<Playground> unapprovedPlaygrounds, Playground playground) {
         if (playground.getAvailability()) allPlaygrounds.remove(playground);
         else unapprovedPlaygrounds.remove(playground);
@@ -317,12 +383,18 @@ public class PlaygroundOwner extends Account {
         }
     }
 
+    /**
+     * displays Ewallet balance
+     */
     public void checkEwallet() {
         System.out.println("===========================");
         System.out.println(getUserName() + "'s e-wallet balance: " + ownerWallet.getBalance() + " EGP");
         System.out.println("===========================");
     }
 
+    /**
+     * @param playground views all bookings of that playground
+     */
     public void viewBookings(Playground playground) {
         System.out.println("===========================");
         System.out.println(playground.getPlaygroundName() + ':');
@@ -332,6 +404,9 @@ public class PlaygroundOwner extends Account {
         System.out.println("===========================");
     }
 
+    /**
+     * @return a string containing all the playground info such as the username, address, email and phone number
+     */
     @Override
     public String toString() {
         return "Playground owner user name:" + getUserName() + '\n' +
