@@ -24,7 +24,7 @@ public abstract class Account {
      * the email of the user
      */
     private String email;
-    /**
+    /** 
      * the phone number of the user
      */
     private String phoneNumber;
