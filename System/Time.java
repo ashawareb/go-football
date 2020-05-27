@@ -4,17 +4,47 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
+/**
+ * Time class holds the time for further usage
+ */
 public class Time {
 
+    /**
+     * the starting hour, stored in 24 format as integer
+     */
     private int startingHour;
+    /**
+     * the ending hour, stored in 24 format as integer
+     */
     private int endingHour;
+    /**
+     * the starting day, stored as integer
+     */
     private int startDay;
+    /**
+     * the starting month, stored as integer
+     */
     private int startMonth;
+    /**
+     * the starting year
+     */
     private int startYear;
+    /**
+     * the ending day, stored as integer
+     */
     private int endDay;
+    /**
+     * the ending month, stored as integer
+     */
     private int endMonth;
+    /**
+     * the ending year
+     */
     private int endYear;
 
+    /**
+     * the Time constructor, initialises all the attributes to be zero valued
+     */
     public Time() {
         startingHour = 0;
         endingHour = 0;
@@ -26,88 +56,123 @@ public class Time {
         endYear = 0;
     }
 
+    /**
+     * @return getter for startingHour
+     */
     public int getStartingHour() {
         return startingHour;
     }
 
+    /**
+     * @param startingHour setter for startingHour
+     */
     public void setStartingHour(int startingHour) {
         this.startingHour = startingHour;
     }
 
+    /**
+     * @return getter for endingHour
+     */
     public int getEndingHour() {
         return endingHour;
     }
 
+    /**
+     * @param endingHour setter for endingHour
+     */
     public void setEndingHour(int endingHour) {
         this.endingHour = endingHour;
     }
 
+    /**
+     * @return getter for startingDay
+     */
     public int getStartDay() {
         return this.startDay;
     }
 
     /**
-     * @param startDay
+     * @param startDay setter for starting day
      */
     public void setStartDay(int startDay) {
         this.startDay = startDay;
     }
 
+    /**
+     * @return getter for starting month
+     */
     public int getStartMonth() {
         return this.startMonth;
     }
 
     /**
-     * @param startMonth
+     * @param startMonth setter for starting month
      */
     public void setStartMonth(int startMonth) {
         this.startMonth = startMonth;
     }
 
+    /**
+     * @return getter for starting year
+     */
     public int getStartYear() {
         return this.startYear;
     }
 
     /**
-     * @param startYear
+     * @param startYear setter for starting year
      */
     public void setStartYear(int startYear) {
         this.startYear = startYear;
     }
 
+    /**
+     * @return getter for ending day
+     */
     public int getEndDay() {
         return endDay;
     }
 
     /**
-     * @param endDay
+     * @param endDay setter for ending day
      */
     public void setEndDay(int endDay) {
         this.endDay = endDay;
     }
 
+    /**
+     * @return getter for ending month
+     */
     public int getEndMonth() {
         return endMonth;
     }
 
     /**
-     * @param endMonth
+     * @param endMonth setter for ending month
      */
     public void setEndMonth(int endMonth) {
         this.endMonth = endMonth;
     }
 
+    /**
+     * @return getter for ending year
+     */
     public int getEndYear() {
         return endYear;
     }
 
     /**
-     * @param endYear
+     * @param endYear setting for ending year
      */
     public void setEndYear(int endYear) {
         this.endYear = endYear;
     }
 
+    /**
+     * setTIme method is responsible for taking the input from the user to store them
+     *  it checks if the time is in the past then displays invalid time
+     * @return  a boolean that holds whether the time is valid or not
+     */
     public boolean setTime() {
         Scanner input = new Scanner(System.in);
         boolean flag = true;
@@ -153,6 +218,9 @@ public class Time {
         return flag;
     }
 
+    /**
+     * a method responsible for setting the current time and fetching it in terms of hours, days, months and years
+     */
     public void setCurrentTime() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd/HH");
         LocalDateTime now = LocalDateTime.now();
@@ -170,6 +238,10 @@ public class Time {
         setEndYear(Integer.parseInt(currentDateTime.substring(0, 4)));
     }
 
+    /**
+     * method for extending time given a specific duration
+     * @param duration to be added to the time attributes within the class Time
+     */
     public void extend(int duration) {
         double doubleDays = duration / 24.0;
         int days = (int) doubleDays;
@@ -190,6 +262,11 @@ public class Time {
         }
     }
 
+    /**
+     * conflicts method is responsible for findind whether the time is within the same period as in the time in the Time class attributes
+     * @param time the time that needs to be checked if within the same time as the class attributes
+     * @return boolean expressing whether it exists within the same time or not
+     */
     public boolean conflicts(Time time) {
         boolean flag = true;
         if (getEndYear() < time.getStartYear()) {
@@ -225,6 +302,10 @@ public class Time {
         return flag;
     }
 
+    /**
+     * @param time checks if the time exists before the time attributes in the class
+     * @return true or false based on whether or not it exists before or after the time attributes in the class
+     */
     public boolean startsBefore(Time time) {
         boolean flag = false;
         if (getStartYear() < time.getStartYear()) flag = true;
@@ -240,6 +321,10 @@ public class Time {
         return flag;
     }
 
+    /**
+     * @param time checks if the time exists after the time attributes in the class
+     * @return true or false based on whether or not it exists after or before the time attributes in the class
+     */
     public boolean endsAfter(Time time) {
         boolean flag = false;
         if (getEndYear() > time.getEndYear()) flag = true;
@@ -255,6 +340,10 @@ public class Time {
         return flag;
     }
 
+    /**
+     * method responsible for calculating the duration of the time by subtracting the ending time from the starting time
+     * @return the duration of the whole time
+     */
     public int getDuration() {
         int years = (getEndYear() - getStartYear()) * 12 * 30;
         int months = (getEndMonth() - getStartMonth()) * 30;
@@ -263,6 +352,14 @@ public class Time {
         return (hours * (years + months + days + 1));
     }
 
+    /**
+     * @return a String containing all info of the Time class
+     * such as:
+     * the starting hour
+     * ending hout
+     * starting date
+     * ending date
+     */
     @Override
     public String toString() {
         return "Starting Hour: " + startingHour + '\n' +
