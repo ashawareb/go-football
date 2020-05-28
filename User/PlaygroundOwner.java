@@ -22,10 +22,6 @@ public class PlaygroundOwner extends Account {
      * the playground owner arraylist of playgrounds that he holds
      */
     private ArrayList<Playground> playgrounds;
-    /**
-     * the playground owner wallet
-     */
-    private Ewallet ownerWallet;
 
     /**
      * PLaygroundOwner constructor, responsible for initialising the address, playgrounds and wallet of the playground owner
@@ -35,7 +31,6 @@ public class PlaygroundOwner extends Account {
         super(verifier);
         address = "";
         playgrounds = new ArrayList<>();
-        ownerWallet = new Ewallet();
     }
 
     /**
@@ -57,13 +52,6 @@ public class PlaygroundOwner extends Account {
      */
     public ArrayList<Playground> getPlaygrounds() {
         return this.playgrounds;
-    }
-
-    /**
-     * @return getter for playground owner wallet
-     */
-    public Ewallet getOwnerWallet() {
-        return this.ownerWallet;
     }
 
     /**
@@ -381,15 +369,6 @@ public class PlaygroundOwner extends Account {
             playground.getBookings().get(i).refund();
             playground.getBookings().get(i).getPlayer().getPlayerBookings().remove(playground.getBookings().get(i));
         }
-    }
-
-    /**
-     * displays Ewallet balance
-     */
-    public void checkEwallet() {
-        System.out.println("===========================");
-        System.out.println(getUserName() + "'s e-wallet balance: " + ownerWallet.getBalance() + " EGP");
-        System.out.println("===========================");
     }
 
     /**
