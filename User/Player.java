@@ -20,11 +20,6 @@ public class Player extends Account {
      * favourtie team index
      */
     private int favouriteTeamIndex = -1;
-
-    /**
-     * player wallet
-     */
-    private Ewallet playerWallet;
     /**
      * player arrayList of teams
      */
@@ -40,17 +35,11 @@ public class Player extends Account {
      */
     public Player(Verifier verifier) {
         super(verifier);
-        playerWallet = new Ewallet();
         teams = new ArrayList<>();
         playerBookings = new ArrayList<>();
     }
 
-    /**
-     * @return getter for player wallet
-     */
-    public Ewallet getPlayerWallet() {
-        return this.playerWallet;
-    }
+
 
     /**
      * @return getter for player teams
@@ -176,14 +165,14 @@ public class Player extends Account {
                         }
                     }
                     if (flag) {
-                        double currentBalanace = player.getPlayerWallet().getBalance();
+                        double currentBalanace = player.getWallet().getBalance();
                         double bookingPrice = bookingTime.getDuration() * bookedPlayground.getPrice();
                         if (currentBalanace >= bookingPrice) {
-                            double ownerBalance = bookedPlayground.getOwner().getOwnerWallet().getBalance();
+                            double ownerBalance = bookedPlayground.getOwner().getWallet().getBalance();
                             bookedPlayground.getBookings().add(newBooking);
                             playerBookings.add(newBooking);
-                            player.getPlayerWallet().setBalance(currentBalanace - bookingPrice);
-                            bookedPlayground.getOwner().getOwnerWallet().setBalance(ownerBalance + bookingPrice);
+                            player.getWallet().setBalance(currentBalanace - bookingPrice);
+                            bookedPlayground.getOwner().getWallet().setBalance(ownerBalance + bookingPrice);
                         } else {
                             throw new InsufficientBalance();
                         }
@@ -347,10 +336,10 @@ public class Player extends Account {
         if (!cancellationTime.conflicts(booking.getTime())) {
             int bookingDuration = booking.getTime().getDuration();
             double bookingPrice = booking.getPlayground().getPrice() * bookingDuration;
-            double playerBalance = booking.getPlayer().getPlayerWallet().getBalance();
-            double ownerBalance = booking.getPlayground().getOwner().getOwnerWallet().getBalance();
-            booking.getPlayground().getOwner().getOwnerWallet().setBalance(ownerBalance - bookingPrice);
-            booking.getPlayer().getPlayerWallet().setBalance(playerBalance + bookingPrice);
+            double playerBalance = booking.getPlayer().getWallet().getBalance();
+            double ownerBalance = booking.getPlayground().getOwner().getWallet().getBalance();
+            booking.getPlayground().getOwner().getWallet().setBalance(ownerBalance - bookingPrice);
+            booking.getPlayer().getWallet().setBalance(playerBalance + bookingPrice);
         } else {
             System.out.println("Cancellation period passed, booking value not refunded");
         }
