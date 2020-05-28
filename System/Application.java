@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class Application implements Verifier {
 
     /**
-     *  accounts attribute holds all the accounts in the program, whether admin, player or playground owner
+     * accounts attribute holds all the accounts in the program, whether admin, player or playground owner
      */
     private ArrayList<Account> accounts;
     /**
@@ -37,6 +37,7 @@ public class Application implements Verifier {
     /**
      * getUserChoice is responsibile for getting the user choice,
      * and guarantees that the choice is between the min and max value that was passed by the menu
+     *
      * @param min minimum value in the menu
      * @param max maximam value in the menu
      * @return userChoice which is between the min and max value
@@ -61,14 +62,15 @@ public class Application implements Verifier {
     }
 
     /**
-     *  Administrator menu, displays all the admin menu options for the admin to choose from.
-     *  It contains the following options:
-     *  approving playground
-     *  suspending playground
-     *  detelting playground
-     *  activating playground
-     *  logging out.
-     *  Depending on which choice, the menu calls the corresponding function to the choice selected.
+     * Administrator menu, displays all the admin menu options for the admin to choose from.
+     * It contains the following options:
+     * approving playground
+     * suspending playground
+     * detelting playground
+     * activating playground
+     * logging out.
+     * Depending on which choice, the menu calls the corresponding function to the choice selected.
+     *
      * @param admin takes the current admin that the program is currently interacting with.
      */
     private void menu(Administrator admin) {
@@ -95,10 +97,14 @@ public class Application implements Verifier {
                 }
                 int approvedPlaygroundIndex = getUserChoice(0, unapprovedPlaygrounds.size());
                 if (approvedPlaygroundIndex != 0) {
-                    admin.approvePlayground(unapprovedPlaygrounds.get(approvedPlaygroundIndex - 1));
-                    allPlaygrounds.add(unapprovedPlaygrounds.get(approvedPlaygroundIndex - 1));
-                    unapprovedPlaygrounds.remove(approvedPlaygroundIndex - 1);
-                    System.out.println("Playground approved");
+                    boolean approved = admin.approvePlayground(unapprovedPlaygrounds.get(approvedPlaygroundIndex - 1));
+                    if (approved) {
+                        allPlaygrounds.add(unapprovedPlaygrounds.get(approvedPlaygroundIndex - 1));
+                        unapprovedPlaygrounds.remove(approvedPlaygroundIndex - 1);
+                        System.out.println("Playground approved");
+                    } else {
+                        System.out.println("Playground status not changed");
+                    }
                 }
             } else if (userChoice == 2) {
                 System.out.println("===========================");
@@ -157,6 +163,7 @@ public class Application implements Verifier {
      * check Ewallet
      * log out
      * Depending on the user choice, it calls the appropriate function that corresponds to the choice.
+     *
      * @param player takes the current player that the program is currenty interating with.
      */
     private void menu(Player player) {
@@ -256,16 +263,17 @@ public class Application implements Verifier {
     }
 
     /**
-     *  PLayground owner menu, displays all the PLayground menu options for the player owner to choose from.
-     *  It contains the following options:
-     *  view all playgrounds
-     *  add new playground
-     *  view pending playground requests
-     *  view bookings
-     *  view Ewallet
-     *  edit profile
-     *  log out
+     * PLayground owner menu, displays all the PLayground menu options for the player owner to choose from.
+     * It contains the following options:
+     * view all playgrounds
+     * add new playground
+     * view pending playground requests
+     * view bookings
+     * view Ewallet
+     * edit profile
+     * log out
      * Depending on the user choice, it calls the appropriate function that corresponds to the choice.
+     *
      * @param playgroundOwner takes the current PLayground owner that the program is currenty interating with.
      */
     private void menu(PlaygroundOwner playgroundOwner) {
@@ -336,7 +344,6 @@ public class Application implements Verifier {
 
     /**
      * displays all playground owners by calling the function toString()
-     *
      */
     private void displayPlaygroundOwners() {
         System.out.println("===========================");
@@ -368,7 +375,7 @@ public class Application implements Verifier {
      * if user chooces to login, the menu takes his username and password and checks if it exists, if it does not,
      * the menu displays that it does not exist
      * in case it exists, the main menu calls the menu of the user based on his role(player,admin or playground owner)
-     *
+     * <p>
      * if the user chooses to register, the main menu takes all his information and makes sure it does not conflict with
      * other accounts, if it does, the main menu displays an error message based on the type of error that has happened.
      */
@@ -455,6 +462,7 @@ public class Application implements Verifier {
     /**
      * it overrides from the Verifier class
      * verifyPassword takes a password and an account as a parameter and returns true if and only if the password matches the password of the account
+     *
      * @param account  that wants to login
      * @param password the password that the account entered
      */
@@ -467,8 +475,9 @@ public class Application implements Verifier {
     /**
      * it overrides from the Verifier class
      * checks if the number exists, if it does, it returns false
-     * @throws NumberFormatException if the user entered unvalid input
+     *
      * @param number number to be verified to be unique.
+     * @throws NumberFormatException if the user entered unvalid input
      */
     @Override
     public boolean verifyNumber(String number) {
@@ -488,6 +497,7 @@ public class Application implements Verifier {
     /**
      * it overrides from the Verifier class
      * sends a confirmation number to the email in parameter
+     *
      * @param email email that needs to recieve the confirmation number
      */
     @Override
@@ -500,6 +510,7 @@ public class Application implements Verifier {
      * it verifies username. returns index of username if found,
      * if not found returns -2 if username length is below 1
      * if not found but username is more than 1 then returns -1
+     *
      * @param username username to be checked
      */
     public int verifyUserName(String username) {
@@ -513,6 +524,7 @@ public class Application implements Verifier {
     /**
      * login method, takes the username and password and throws exceptions if invalid
      * if valid then it returns that it is valid
+     *
      * @return usernameValid if the username is valid
      * @throws InvalidUserName if username is not valid
      * @throws InvalidPassword if password is not valid
@@ -538,12 +550,13 @@ public class Application implements Verifier {
      * register method, resposible for taking user info such as username, password, email, phone number, confirmation number and address
      * checks if the previous info is correct, if it is, it creates a new object based on the role,
      * if not, throws the following exceptions
-     * @throws InvalidUserName if username is not valid
-     * @throws InvalidPassword if password is not valid
-     * @throws InvalidEmail if email is not valid
-     * @throws InvalidNumber if phone number is not valid
+     *
+     * @throws InvalidUserName     if username is not valid
+     * @throws InvalidPassword     if password is not valid
+     * @throws InvalidEmail        if email is not valid
+     * @throws InvalidNumber       if phone number is not valid
      * @throws InvalidConfirmation if confirmation number is not valid
-     * @throws InvalidAddress if address is not valid
+     * @throws InvalidAddress      if address is not valid
      */
     public void register() throws InvalidUserName, InvalidPassword, InvalidEmail, InvalidNumber, InvalidConfirmation, InvalidAddress {
         Scanner input = new Scanner(System.in);
