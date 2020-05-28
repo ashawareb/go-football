@@ -88,60 +88,13 @@ public class Application implements Verifier {
             System.out.println("[5] Log out");
             int userChoice = getUserChoice(1, 5);
             if (userChoice == 1) {
-                int counter = 1;
-                System.out.println("Displaying all unapproved playgrounds:");
-                System.out.println("[0] Cancel");
-                for (Playground playground : unapprovedPlaygrounds) {
-                    System.out.println("[" + String.valueOf(counter) + "] " + playground.getPlaygroundName());
-                    counter++;
-                }
-                int approvedPlaygroundIndex = getUserChoice(0, unapprovedPlaygrounds.size());
-                if (approvedPlaygroundIndex != 0) {
-                    boolean approved = admin.approvePlayground(unapprovedPlaygrounds.get(approvedPlaygroundIndex - 1));
-                    if (approved) {
-                        allPlaygrounds.add(unapprovedPlaygrounds.get(approvedPlaygroundIndex - 1));
-                        unapprovedPlaygrounds.remove(approvedPlaygroundIndex - 1);
-                        System.out.println("Playground approved");
-                    } else {
-                        System.out.println("Playground status not changed");
-                    }
-                }
+                approvePlayground(admin);
             } else if (userChoice == 2) {
-                System.out.println("===========================");
-                System.out.println("[0] Cancel");
-                for (int i = 0; i < allPlaygrounds.size(); i++) {
-                    System.out.println('[' + String.valueOf(i + 1) + "] " + allPlaygrounds.get(i));
-                }
-                System.out.println("Choose a playground to suspend: ");
-                userChoice = getUserChoice(0, allPlaygrounds.size());
-                if (userChoice != 0) {
-                    admin.suspendPlayground(allPlaygrounds.get(userChoice - 1));
-                    System.out.println("Playground suspended");
-                }
+                suspendPlayground(admin);
             } else if (userChoice == 3) {
-                System.out.println("===========================");
-                System.out.println("[0] Cancel");
-                for (int i = 0; i < allPlaygrounds.size(); i++) {
-                    System.out.println('[' + String.valueOf(i + 1) + "] " + allPlaygrounds.get(i).getPlaygroundName());
-                }
-                System.out.println("Choose a playground to delete: ");
-                userChoice = getUserChoice(0, allPlaygrounds.size());
-                if (userChoice != 0) {
-                    admin.deletePlayground(allPlaygrounds, unapprovedPlaygrounds, allPlaygrounds.get(userChoice - 1));
-                    System.out.println("Playground deleted and all bookings refunded");
-                }
+                deletePlayground(admin);
             } else if (userChoice == 4) {
-                System.out.println("===========================");
-                System.out.println("[0] Cancel");
-                for (int i = 0; i < allPlaygrounds.size(); i++) {
-                    System.out.println('[' + String.valueOf(i + 1) + "] " + allPlaygrounds.get(i).getPlaygroundName());
-                }
-                System.out.println("Choose a playground to activate: ");
-                userChoice = getUserChoice(0, allPlaygrounds.size());
-                if (userChoice != 0) {
-                    admin.activatePlayground(allPlaygrounds.get(userChoice - 1));
-                    System.out.println("Playground activated");
-                }
+                activatePlayground(admin);
             } else {
                 flag = false;
             }
@@ -189,73 +142,23 @@ public class Application implements Verifier {
             if (userChoice == 1) {
                 player.viewPlaygrounds(allPlaygrounds);
             } else if (userChoice == 2) {
-                System.out.println("===========================");
-                System.out.println("[0] Cancel");
-                player.viewPlaygrounds(allPlaygrounds);
-                System.out.println("===========================");
-                System.out.println("Please choose a number:");
-                userChoice = getUserChoice(0, allPlaygrounds.size());
-                if (userChoice != 0) {
-                    try {
-                        int originalBookings = allPlaygrounds.get(userChoice - 1).getBookings().size();
-                        player.bookPlayground(player, allPlaygrounds.get(userChoice - 1));
-                        int afterBooking = allPlaygrounds.get(userChoice - 1).getBookings().size();
-                        if (afterBooking > originalBookings) {
-                            System.out.println("Booking done");
-                        } else {
-                            System.out.println("Booking aborted");
-                        }
-                    } catch (InsufficientBalance ex) {
-                        System.out.println("Your balance is insufficient for the booking.");
-                    } catch (PlaygroundUnavailable ex) {
-                        System.out.println("The time slot you picked is unavailable for booking");
-                    }
-                }
+                bookPlayground(player);
             } else if (userChoice == 3) {
                 player.createTeam(this);
             } else if (userChoice == 4) {
                 player.sendInvitation();
             } else if (userChoice == 5) {
-                System.out.println("===========================");
-                System.out.println("[0] Cancel");
-                for (int i = 0; i < player.getPlayerBookings().size(); i++) {
-                    System.out.println('[' + String.valueOf(i + 1) + "] " + player.getPlayerBookings().get(i));
-                }
-                System.out.println("===========================");
-                System.out.println("Please choose a number:");
-                userChoice = getUserChoice(0, player.getPlayerBookings().size());
-                if (userChoice != 0) {
-                    player.cancelBooking(player.getPlayerBookings().get(userChoice - 1));
-                }
+                cancelBooking(player);
             } else if (userChoice == 6) {
-                try {
-                    player.updateProfile(accounts);
-                } catch (InvalidPassword ex) {
-                    System.out.println("Invalid password, please try again.");
-                } catch (InvalidEmail ex) {
-                    System.out.println("Invalid email, please try again.");
-                } catch (InvalidNumber ex) {
-                    System.out.println("Invalid number, please try again.");
-                } catch (InvalidAddress ex) {
-                    System.out.println("Invalid address, please try again.");
-                }
+                editProfile(player);
             } else if (userChoice == 7) {
-                Team modifyTeam = player.pickTeam();
-                if (modifyTeam != null) {
-                    try {
-                        player.modifyTeam(modifyTeam);
-                    } catch (InvalidEmail ex) {
-                        System.out.println("Invalid email entered");
-                    }
-                }
+                modifyTeam(player);
             } else if (userChoice == 8) {
                 player.filterPlaygrounds(allPlaygrounds, "timeslot");
             } else if (userChoice == 9) {
                 player.filterPlaygrounds(allPlaygrounds, "location");
             } else if (userChoice == 10) {
-                System.out.println("===========================");
-                System.out.println(player.getUserName() + "'s e-wallet balance: " + player.getPlayerWallet().getBalance() + " EGP");
-                System.out.println("===========================");
+                player.checkEWallet();
             } else {
                 flag = false;
             }
@@ -293,49 +196,17 @@ public class Application implements Verifier {
             System.out.println("[7] Log out");
             int userChoice = getUserChoice(1, 7);
             if (userChoice == 1) {
-                int playgroundsCount = playgroundOwner.getPlaygrounds().size();
-                System.out.println("===========================");
-                System.out.println("[0] Cancel");
-                for (int i = 0; i < playgroundsCount; i++) {
-                    System.out.println('[' + String.valueOf(i + 1) + "] " + playgroundOwner.getPlaygrounds().get(i).getPlaygroundName());
-                }
-                System.out.println("===========================");
-                System.out.println("Please choose a playground to modify or enter 0 to return to main menu: ");
-                int chosenPlayground = getUserChoice(0, playgroundsCount);
-                if (chosenPlayground != 0) {
-                    playgroundOwner.updatePlayground(allPlaygrounds, unapprovedPlaygrounds, playgroundOwner.getPlaygrounds().get(chosenPlayground - 1));
-                }
+                viewAllPlaygrounds(playgroundOwner);
             } else if (userChoice == 2) {
                 playgroundOwner.addPlayground(allPlaygrounds, unapprovedPlaygrounds);
             } else if (userChoice == 3) {
                 playgroundOwner.viewPending();
             } else if (userChoice == 4) {
-                int playgroundsCount = playgroundOwner.getPlaygrounds().size();
-                System.out.println("===========================");
-                System.out.println("[0] Cancel");
-                for (int i = 0; i < playgroundsCount; i++) {
-                    System.out.println('[' + String.valueOf(i + 1) + "] " + playgroundOwner.getPlaygrounds().get(i).getPlaygroundName());
-                }
-                System.out.println("===========================");
-                System.out.println("Please choose a playground to view its bookings or enter 0 to return to main menu: ");
-                int chosenPlayground = getUserChoice(0, playgroundsCount);
-                if (chosenPlayground != 0) {
-                    playgroundOwner.viewBookings(playgroundOwner.getPlaygrounds().get(chosenPlayground - 1));
-                }
+                viewBookings(playgroundOwner);
             } else if (userChoice == 5) {
-                playgroundOwner.checkEwallet();
+                playgroundOwner.checkEWallet();
             } else if (userChoice == 6) {
-                try {
-                    playgroundOwner.updateProfile(accounts);
-                } catch (InvalidPassword ex) {
-                    System.out.println("Invalid password, please try again.");
-                } catch (InvalidEmail ex) {
-                    System.out.println("Invalid email, please try again.");
-                } catch (InvalidNumber ex) {
-                    System.out.println("Invalid number, please try again.");
-                } catch (InvalidAddress ex) {
-                    System.out.println("Invalid address, please try again.");
-                }
+                editProfile(playgroundOwner);
             } else {
                 flag = false;
             }
@@ -391,36 +262,9 @@ public class Application implements Verifier {
             System.out.println("===========================");
             int userChoice = getUserChoice(1, 3);
             if (userChoice == 1) {
-                int currentUserIndex = -1;
-                try {
-                    currentUserIndex = login();
-                } catch (InvalidUserName ex) {
-                    System.out.println("Invalid username, please try again.");
-                } catch (InvalidPassword ex) {
-                    System.out.println("Invalid password, please try again.");
-                }
-                if (currentUserIndex != -1) {
-                    Account currentAccount = accounts.get(currentUserIndex);
-                    if (currentAccount instanceof Administrator) menu((Administrator) currentAccount);
-                    else if (currentAccount instanceof Player) menu((Player) currentAccount);
-                    else menu((PlaygroundOwner) currentAccount);
-                }
+                login();
             } else if (userChoice == 2) {
-                try {
-                    register();
-                } catch (InvalidUserName ex) {
-                    System.out.println("Username already exists or is invalid, please try again.");
-                } catch (InvalidPassword ex) {
-                    System.out.println("Invalid password, please try again.");
-                } catch (InvalidEmail ex) {
-                    System.out.println("Invalid email, please try again.");
-                } catch (InvalidNumber ex) {
-                    System.out.println("Invalid number, please try again.");
-                } catch (InvalidConfirmation ex) {
-                    System.out.println("Invalid confirmation code, please try again.");
-                } catch (InvalidAddress ex) {
-                    System.out.println("Invalid address, please try again.");
-                }
+                register();
             } else {
                 System.out.println("Exiting...");
                 flag = false;
@@ -529,7 +373,7 @@ public class Application implements Verifier {
      * @throws InvalidUserName if username is not valid
      * @throws InvalidPassword if password is not valid
      */
-    public int login() throws InvalidUserName, InvalidPassword {
+    public int loginUser() throws InvalidUserName, InvalidPassword {
         Scanner input = new Scanner(System.in);
         String username = null;
         String password = null;
@@ -558,7 +402,7 @@ public class Application implements Verifier {
      * @throws InvalidConfirmation if confirmation number is not valid
      * @throws InvalidAddress      if address is not valid
      */
-    public void register() throws InvalidUserName, InvalidPassword, InvalidEmail, InvalidNumber, InvalidConfirmation, InvalidAddress {
+    public void registerUser() throws InvalidUserName, InvalidPassword, InvalidEmail, InvalidNumber, InvalidConfirmation, InvalidAddress {
         Scanner input = new Scanner(System.in);
         boolean flag = true;
         String userName = "";
@@ -632,6 +476,258 @@ public class Application implements Verifier {
                 System.out.println("Account registered successfully!");
                 flag = false;
             }
+        }
+    }
+
+    /*
+    Wrapper functions below this comment
+    */
+
+    /**
+     * wrapper function for login functionality
+     */
+    public void login() {
+        int currentUserIndex = -1;
+        try {
+            currentUserIndex = loginUser();
+        } catch (InvalidUserName ex) {
+            System.out.println("Invalid username, please try again.");
+        } catch (InvalidPassword ex) {
+            System.out.println("Invalid password, please try again.");
+        }
+        if (currentUserIndex != -1) {
+            Account currentAccount = accounts.get(currentUserIndex);
+            if (currentAccount instanceof Administrator) menu((Administrator) currentAccount);
+            else if (currentAccount instanceof Player) menu((Player) currentAccount);
+            else menu((PlaygroundOwner) currentAccount);
+        }
+    }
+
+    /**
+     * wrapper function for register functionality
+     */
+    public void register() {
+        try {
+            registerUser();
+        } catch (InvalidUserName ex) {
+            System.out.println("Username already exists or is invalid, please try again.");
+        } catch (InvalidPassword ex) {
+            System.out.println("Invalid password, please try again.");
+        } catch (InvalidEmail ex) {
+            System.out.println("Invalid email, please try again.");
+        } catch (InvalidNumber ex) {
+            System.out.println("Invalid number, please try again.");
+        } catch (InvalidConfirmation ex) {
+            System.out.println("Invalid confirmation code, please try again.");
+        } catch (InvalidAddress ex) {
+            System.out.println("Invalid address, please try again.");
+        }
+    }
+
+    /**
+     * wrapper function for view all playgrounds functionality
+     *
+     * @param playgroundOwner the PlaygroundOwner object performing the action
+     */
+    public void viewAllPlaygrounds(PlaygroundOwner playgroundOwner) {
+        int playgroundsCount = playgroundOwner.getPlaygrounds().size();
+        System.out.println("===========================");
+        System.out.println("[0] Cancel");
+        for (int i = 0; i < playgroundsCount; i++) {
+            System.out.println('[' + String.valueOf(i + 1) + "] " + playgroundOwner.getPlaygrounds().get(i).getPlaygroundName());
+        }
+        System.out.println("===========================");
+        System.out.println("Please choose a playground to modify or enter 0 to return to main menu: ");
+        int chosenPlayground = getUserChoice(0, playgroundsCount);
+        if (chosenPlayground != 0) {
+            playgroundOwner.updatePlayground(allPlaygrounds, unapprovedPlaygrounds, playgroundOwner.getPlaygrounds().get(chosenPlayground - 1));
+        }
+    }
+
+    /**
+     * wrapper function for view all bookings for a specific playground functionality
+     *
+     * @param playgroundOwner the PlaygroundOwner object performing the action
+     */
+    public void viewBookings(PlaygroundOwner playgroundOwner) {
+        int playgroundsCount = playgroundOwner.getPlaygrounds().size();
+        System.out.println("===========================");
+        System.out.println("[0] Cancel");
+        for (int i = 0; i < playgroundsCount; i++) {
+            System.out.println('[' + String.valueOf(i + 1) + "] " + playgroundOwner.getPlaygrounds().get(i).getPlaygroundName());
+        }
+        System.out.println("===========================");
+        System.out.println("Please choose a playground to view its bookings or enter 0 to return to main menu: ");
+        int chosenPlayground = getUserChoice(0, playgroundsCount);
+        if (chosenPlayground != 0) {
+            playgroundOwner.viewBookings(playgroundOwner.getPlaygrounds().get(chosenPlayground - 1));
+        }
+    }
+
+    /**
+     * wrapper function for editing profile functionality
+     *
+     * @param account the Account object performing the action
+     */
+    public void editProfile(Account account) {
+        try {
+            account.updateProfile(accounts);
+        } catch (InvalidPassword ex) {
+            System.out.println("Invalid password, please try again.");
+        } catch (InvalidEmail ex) {
+            System.out.println("Invalid email, please try again.");
+        } catch (InvalidNumber ex) {
+            System.out.println("Invalid number, please try again.");
+        } catch (InvalidAddress ex) {
+            System.out.println("Invalid address, please try again.");
+        }
+    }
+
+    /**
+     * wrapper function for booking playground functionality
+     *
+     * @param player the Account object performing the action
+     */
+    public void bookPlayground(Player player) {
+        System.out.println("===========================");
+        System.out.println("[0] Cancel");
+        player.viewPlaygrounds(allPlaygrounds);
+        System.out.println("===========================");
+        System.out.println("Please choose a number:");
+        int userChoice = getUserChoice(0, allPlaygrounds.size());
+        if (userChoice != 0) {
+            try {
+                int originalBookings = allPlaygrounds.get(userChoice - 1).getBookings().size();
+                player.bookPlayground(player, allPlaygrounds.get(userChoice - 1));
+                int afterBooking = allPlaygrounds.get(userChoice - 1).getBookings().size();
+                if (afterBooking > originalBookings) {
+                    System.out.println("Booking done");
+                } else {
+                    System.out.println("Booking aborted");
+                }
+            } catch (InsufficientBalance ex) {
+                System.out.println("Your balance is insufficient for the booking.");
+            } catch (PlaygroundUnavailable ex) {
+                System.out.println("The time slot you picked is unavailable for booking");
+            }
+        }
+    }
+
+    /**
+     * wrapper function for cancel booking functionality
+     *
+     * @param player the Account object performing the action
+     */
+    public void cancelBooking(Player player) {
+        System.out.println("===========================");
+        System.out.println("[0] Cancel");
+        for (int i = 0; i < player.getPlayerBookings().size(); i++) {
+            System.out.println('[' + String.valueOf(i + 1) + "] " + player.getPlayerBookings().get(i));
+        }
+        System.out.println("===========================");
+        System.out.println("Please choose a number:");
+        int userChoice = getUserChoice(0, player.getPlayerBookings().size());
+        if (userChoice != 0) {
+            player.cancelBooking(player.getPlayerBookings().get(userChoice - 1));
+        }
+    }
+
+    /**
+     * wrapper function for modifying a team functionality
+     *
+     * @param player the Account object performing the action
+     */
+    public void modifyTeam(Player player) {
+        Team modifyTeam = player.pickTeam();
+        if (modifyTeam != null) {
+            try {
+                player.modifyTeam(modifyTeam);
+            } catch (InvalidEmail ex) {
+                System.out.println("Invalid email entered");
+            }
+        }
+    }
+
+    /**
+     * wrapper function for approving a playground functionality
+     *
+     * @param admin the Account object performing the action
+     */
+    public void approvePlayground(Administrator admin) {
+        int counter = 1;
+        System.out.println("Displaying all unapproved playgrounds:");
+        System.out.println("[0] Cancel");
+        for (Playground playground : unapprovedPlaygrounds) {
+            System.out.println("[" + String.valueOf(counter) + "] " + playground.getPlaygroundName());
+            counter++;
+        }
+        int approvedPlaygroundIndex = getUserChoice(0, unapprovedPlaygrounds.size());
+        if (approvedPlaygroundIndex != 0) {
+            boolean approved = admin.approvePlayground(unapprovedPlaygrounds.get(approvedPlaygroundIndex - 1));
+            if (approved) {
+                allPlaygrounds.add(unapprovedPlaygrounds.get(approvedPlaygroundIndex - 1));
+                unapprovedPlaygrounds.remove(approvedPlaygroundIndex - 1);
+                System.out.println("Playground approved");
+            } else {
+                System.out.println("Playground status not changed");
+            }
+        }
+    }
+
+    /**
+     * wrapper function for suspending a playground functionality
+     *
+     * @param admin the Account object performing the action
+     */
+    public void suspendPlayground(Administrator admin) {
+        System.out.println("===========================");
+        System.out.println("[0] Cancel");
+        for (int i = 0; i < allPlaygrounds.size(); i++) {
+            System.out.println('[' + String.valueOf(i + 1) + "] " + allPlaygrounds.get(i));
+        }
+        System.out.println("Choose a playground to suspend: ");
+        int userChoice = getUserChoice(0, allPlaygrounds.size());
+        if (userChoice != 0) {
+            admin.suspendPlayground(allPlaygrounds.get(userChoice - 1));
+            System.out.println("Playground suspended");
+        }
+    }
+
+    /**
+     * wrapper function for deleting a playground functionality
+     *
+     * @param admin the Account object performing the action
+     */
+    public void deletePlayground(Administrator admin) {
+        System.out.println("===========================");
+        System.out.println("[0] Cancel");
+        for (int i = 0; i < allPlaygrounds.size(); i++) {
+            System.out.println('[' + String.valueOf(i + 1) + "] " + allPlaygrounds.get(i).getPlaygroundName());
+        }
+        System.out.println("Choose a playground to delete: ");
+        int userChoice = getUserChoice(0, allPlaygrounds.size());
+        if (userChoice != 0) {
+            admin.deletePlayground(allPlaygrounds, unapprovedPlaygrounds, allPlaygrounds.get(userChoice - 1));
+            System.out.println("Playground deleted and all bookings refunded");
+        }
+    }
+
+    /**
+     * wrapper function for activating a playground functionality
+     *
+     * @param admin the Account object performing the action
+     */
+    public void activatePlayground(Administrator admin) {
+        System.out.println("===========================");
+        System.out.println("[0] Cancel");
+        for (int i = 0; i < allPlaygrounds.size(); i++) {
+            System.out.println('[' + String.valueOf(i + 1) + "] " + allPlaygrounds.get(i).getPlaygroundName());
+        }
+        System.out.println("Choose a playground to activate: ");
+        int userChoice = getUserChoice(0, allPlaygrounds.size());
+        if (userChoice != 0) {
+            admin.activatePlayground(allPlaygrounds.get(userChoice - 1));
+            System.out.println("Playground activated");
         }
     }
 
